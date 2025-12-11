@@ -1,34 +1,27 @@
-
----
-
-### `web/README.md`
-
-```md
 # Belt Inspector Web
 
-Web App en **React + Vite** usada como mock para consumir la API de Belt Inspector.
+App React + Vite (TypeScript) para probar la API de Belt Inspector.
 
-- Lista inspecciones desde la API.
-- Permite probar rápidamente la conectividad con el backend.
+## Scripts
 
----
+```bash
+npm install
+npm run dev      # entorno local
+npm run build    # build de producción
+npm run preview  # sirve la carpeta dist
+```
 
-## 1. Tecnologías
+## Variables de entorno
 
-- React
-- TypeScript
-- Vite
-- Axios
+- `VITE_API_BASE_URL` (ej: `http://localhost:5000` en local, `https://api.beltinspector.com` en prod).
 
----
+Crea un archivo `.env` basado en `.env.example`.
 
-## 2. Variables de entorno
+## Qué hace
 
-- `VITE_API_BASE_URL`
+- Lista inspecciones desde `GET /api/inspections`.
+- Permite crear inspecciones vía `POST /api/inspections`.
+- Permite subir archivos por inspección vía `POST /api/files/{inspectionId}` (se envía como `form-data`).
+- Muestra la base URL configurada para validar rápidamente la conectividad con la API.
 
-Valores típicos:
-
-- En desarrollo (local):
-
-  ```env
-  VITE_API_BASE_URL=http://localhost:5000
+El UI está pensado como mock ligero para validaciones manuales en Render o local.

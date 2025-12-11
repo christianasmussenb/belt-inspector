@@ -20,11 +20,12 @@ Este repo está pensado para correr en local (para desarrollo) y desplegarse en 
   - Expone endpoints REST para inspecciones y archivos.
   - Se conecta a PostgreSQL (Render) usando `DB_CONNECTION_STRING`.
   - Sube y lee archivos desde Cloudflare R2 usando la API S3.
+  - Variables principales: `DB_CONNECTION_STRING`, `R2_ENDPOINT`, `R2_BUCKET`, `R2_ACCESS_KEY`, `R2_SECRET_KEY`. Ejemplo en `api/.env.example`.
 
 - **Web App** (`/web`)
   - React + Vite (TypeScript).
   - UI mínima (mock) para listar inspecciones y probar la API.
-  - Usa `VITE_API_BASE_URL` para llamar a la API.
+  - Usa `VITE_API_BASE_URL` para llamar a la API (ver `web/.env.example`).
 
 - **Base de datos**
   - PostgreSQL gestionado por **Render**.
@@ -50,6 +51,7 @@ belt-inspector/
   README.md            # este archivo
   api/
     README.md          # detalles de la API
+    .env.example       # env vars API
     BeltInspector.Api.sln
     BeltInspector.Api/
       Program.cs
@@ -60,6 +62,7 @@ belt-inspector/
       Controllers/
   web/
     README.md          # detalles de la Web
+    .env.example       # env vars Web
     package.json
     vite.config.ts
     index.html
@@ -69,3 +72,22 @@ belt-inspector/
       api.ts
   infra/
     README.md          # infraestructura, Render, DNS, env vars
+```
+
+## 3. Arranque rápido (local)
+
+- API:
+  ```bash
+  cd api/BeltInspector.Api
+  dotnet restore
+  dotnet run
+  ```
+
+- Web:
+  ```bash
+  cd web
+  npm install
+  npm run dev
+  ```
+
+Configura los `.env` tomando como base los archivos de ejemplo antes de levantar cada servicio.
