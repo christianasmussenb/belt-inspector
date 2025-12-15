@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace BeltInspector.Api.Models;
 
@@ -19,5 +20,6 @@ public class FileRecord
     public Guid InspectionId { get; set; }
 
     [ForeignKey(nameof(InspectionId))]
+    [JsonIgnore] // evita ciclos al serializar
     public Inspection? Inspection { get; set; }
 }
