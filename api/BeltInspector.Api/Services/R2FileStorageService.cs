@@ -35,6 +35,7 @@ public class R2FileStorageService : IFileStorageService
             InputStream = stream,
             AutoCloseStream = true,
             ContentType = string.IsNullOrWhiteSpace(file.ContentType) ? "application/octet-stream" : file.ContentType,
+            DisablePayloadSigning = true, // R2 no soporta streaming firmado chunked
         };
 
         _logger.LogInformation("Uploading {FileName} to R2 with key {Key}", file.FileName, key);
