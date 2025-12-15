@@ -32,6 +32,8 @@ builder.Services.AddSingleton<IAmazonS3>(sp =>
     {
         ServiceURL = options.Endpoint,
         ForcePathStyle = true,
+        UseChunkEncoding = false, // R2 no soporta firmas chunked; forzamos Content-Length
+        AuthenticationRegion = "auto",
     };
 
     return string.IsNullOrWhiteSpace(options.AccessKey) || string.IsNullOrWhiteSpace(options.SecretKey)
