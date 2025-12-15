@@ -9,8 +9,8 @@ using Microsoft.Extensions.Options;
 var builder = WebApplication.CreateBuilder(args);
 
 // Configuration
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                      ?? builder.Configuration["DB_CONNECTION_STRING"]
+var connectionString = builder.Configuration["DB_CONNECTION_STRING"]
+                      ?? builder.Configuration.GetConnectionString("DefaultConnection")
                       ?? "Host=localhost;Database=beltinspector;Username=postgres;Password=postgres";
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
