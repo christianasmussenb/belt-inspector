@@ -32,7 +32,8 @@ builder.Services.AddSingleton<IAmazonS3>(sp =>
     {
         ServiceURL = options.Endpoint,
         ForcePathStyle = true,
-        UseChunkEncoding = false, // R2 no soporta firmas chunked; forzamos Content-Length
+        DisablePayloadSigning = true, // evita streaming chunked que R2 no soporta
+        SignatureVersion = "v4",
         AuthenticationRegion = "auto",
     };
 
