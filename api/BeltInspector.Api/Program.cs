@@ -51,6 +51,13 @@ builder.Services.AddCors(policy =>
 
 var app = builder.Build();
 
+// Apply pending migrations at startup to keep schema in sync
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
