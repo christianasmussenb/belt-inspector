@@ -1,7 +1,7 @@
 import { type FormEvent, useEffect, useMemo, useState } from 'react'
 import './App.css'
 import type { FileRecord, Inspection } from './api'
-import { createInspection, fetchInspections, uploadFile } from './api'
+import { createInspection, fetchInspections, updateInspection, uploadFile } from './api'
 
 const statusOptions = ['pending', 'in-progress', 'completed']
 
@@ -10,6 +10,7 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [uploading, setUploading] = useState<string | null>(null)
+  const [statusUpdating, setStatusUpdating] = useState<string | null>(null)
   const [form, setForm] = useState({ title: '', description: '', status: 'pending' })
 
   const apiBase = useMemo(
@@ -17,11 +18,21 @@ function App() {
     [],
   )
 
+  const normalizeFile = (file: FileRecord): FileRecord => ({
+    ...file,
+    downloadUrl: file.downloadUrl || `${apiBase}/api/files/${file.id}/download`,
+  })
+
+  const normalizeInspection = (inspection: Inspection): Inspection => ({
+    ...inspection,
+    files: (inspection.files || []).map(normalizeFile),
+  })
+
   useEffect(() => {
     const load = async () => {
       try {
         const data = await fetchInspections()
-        setInspections(data.map((item) => ({ ...item, files: item.files || [] })))
+        setInspections(data.map(normalizeInspection))
       } catch (err) {
         const message = err instanceof Error ? err.message : 'No se pudo cargar'
         setError(message)
@@ -48,7 +59,7 @@ function App() {
         description: form.description.trim() || undefined,
         status: form.status,
       })
-      const normalized = { ...created, files: created.files || [] }
+      const normalized = normalizeInspection({ ...created, files: created.files || [] })
       setInspections((prev) => [normalized, ...prev])
       setForm({ title: '', description: '', status: 'pending' })
     } catch (err) {
@@ -64,10 +75,11 @@ function App() {
 
     try {
       const record: FileRecord = await uploadFile(inspectionId, file)
+      const normalized = normalizeFile(record)
       setInspections((prev) =>
         prev.map((inspection) =>
           inspection.id === inspectionId
-            ? { ...inspection, files: [record, ...(inspection.files || [])] }
+            ? { ...inspection, files: [normalized, ...(inspection.files || [])] }
             : inspection,
         ),
       )
@@ -76,6 +88,25 @@ function App() {
       setError(message)
     } finally {
       setUploading(null)
+    }
+  }
+
+  const handleStatusChange = async (inspectionId: string, status: string) => {
+    setStatusUpdating(inspectionId)
+    setError(null)
+
+    try {
+      await updateInspection(inspectionId, { status })
+      setInspections((prev) =>
+        prev.map((inspection) =>
+          inspection.id === inspectionId ? { ...inspection, status } : inspection,
+        ),
+      )
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'No se pudo actualizar el estado'
+      setError(message)
+    } finally {
+      setStatusUpdating(null)
     }
   }
 
@@ -163,9 +194,22 @@ function App() {
                 <article key={inspection.id} className="card">
                   <div className="card-header">
                     <h3>{inspection.title}</h3>
-                    <span className={`status status-${inspection.status}`}>
-                      {inspection.status}
-                    </span>
+                    <div className="status-control">
+                      <select
+                        value={inspection.status}
+                        onChange={(e) => handleStatusChange(inspection.id, e.target.value)}
+                        disabled={statusUpdating === inspection.id}
+                      >
+                        {statusOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                      {statusUpdating === inspection.id && (
+                        <span className="status status-updating">Actualizando...</span>
+                      )}
+                    </div>
                   </div>
                   <p className="description">{inspection.description || 'Sin descripción'}</p>
                   <p className="meta">
@@ -193,11 +237,24 @@ function App() {
                     <p className="eyebrow">Archivos</p>
                     {inspection.files?.length ? (
                       <ul>
-                        {inspection.files.map((file) => (
-                          <li key={file.id}>
-                            <span className="file-name">{file.fileName}</span>
-                          </li>
-                        ))}
+                        {inspection.files.map((file) => {
+                          const url = file.downloadUrl || `${apiBase}/api/files/${file.id}/download`
+                          const isImage =
+                            (file.contentType && file.contentType.startsWith('image/')) ||
+                            /\.(png|jpe?g)$/i.test(file.fileName)
+                          return (
+                            <li key={file.id} className="file-item">
+                              <a href={url} target="_blank" rel="noreferrer" className="file-name">
+                                {file.fileName}
+                              </a>
+                              {isImage && (
+                                <a href={url} target="_blank" rel="noreferrer">
+                                  <img src={url} alt={file.fileName} className="thumbnail" />
+                                </a>
+                              )}
+                            </li>
+                          )
+                        })}
                       </ul>
                     ) : (
                       <p className="muted">Aún sin adjuntos.</p>

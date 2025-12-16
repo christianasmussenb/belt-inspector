@@ -31,6 +31,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(x => x.FileName).IsRequired();
             entity.Property(x => x.ContentType).HasMaxLength(200);
             entity.Property(x => x.StorageKey).IsRequired();
+            entity.Property(x => x.DownloadUrl).HasMaxLength(500).HasDefaultValue(string.Empty);
             entity.HasOne(x => x.Inspection)
                 .WithMany(x => x.Files)
                 .HasForeignKey(x => x.InspectionId)

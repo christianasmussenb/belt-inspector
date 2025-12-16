@@ -3,6 +3,7 @@ export type FileRecord = {
   fileName: string
   contentType?: string
   storageKey: string
+  downloadUrl?: string
   inspectionId: string
 }
 
@@ -60,4 +61,22 @@ export async function uploadFile(
   })
 
   return handleJson<FileRecord>(res)
+}
+
+export async function updateInspection(
+  id: string,
+  payload: { status?: string; title?: string; description?: string },
+): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/api/inspections/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+
+  if (!res.ok) {
+    const message = await res.text()
+    throw new Error(message || `Request failed with ${res.status}`)
+  }
 }

@@ -16,6 +16,9 @@ public class FileRecord
     [Required]
     public string StorageKey { get; set; } = string.Empty;
 
+    [MaxLength(500)]
+    public string DownloadUrl { get; set; } = string.Empty;
+
     [Required]
     public Guid InspectionId { get; set; }
 

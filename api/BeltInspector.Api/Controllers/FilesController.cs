@@ -44,6 +44,8 @@ public class FilesController : ControllerBase
             InspectionId = inspectionId,
         };
 
+        record.DownloadUrl = $"/api/files/{record.Id}/download";
+
         _context.Files.Add(record);
         await _context.SaveChangesAsync(cancellationToken);
 
