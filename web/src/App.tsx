@@ -18,10 +18,15 @@ function App() {
     [],
   )
 
-  const normalizeFile = (file: FileRecord): FileRecord => ({
-    ...file,
-    downloadUrl: file.downloadUrl || `${apiBase}/api/files/${file.id}/download`,
-  })
+  const normalizeFile = (file: FileRecord): FileRecord => {
+    const fallback = `${apiBase}/api/files/${file.id}/download`
+    const url = file.downloadUrl
+    const isAbsolute = url?.startsWith('http://') || url?.startsWith('https://')
+    return {
+      ...file,
+      downloadUrl: isAbsolute ? url : `${apiBase}${url ?? fallback}`,
+    }
+  }
 
   const normalizeInspection = (inspection: Inspection): Inspection => ({
     ...inspection,
